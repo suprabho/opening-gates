@@ -349,6 +349,40 @@ export function initViewer(MODEL) {
   }, { passive: false });
   canvas.addEventListener('touchend', () => isDrag = false);
 
+  // Viewport controls: zoom, rotate, pan
+  const STEP_ROTATE = 0.15;   // radians per click
+  const STEP_PAN    = 3;      // scene-units per click
+  const ZOOM_FACTOR = 0.8;    // multiply/divide radius
+
+  function holdAction(btn, fn) {
+    let timer = null;
+    const start = () => { fn(); timer = setInterval(fn, 100); };
+    const stop  = () => clearInterval(timer);
+    btn.addEventListener('mousedown', start);
+    btn.addEventListener('mouseup', stop);
+    btn.addEventListener('mouseleave', stop);
+    btn.addEventListener('touchstart', e => { e.preventDefault(); start(); }, { passive: false });
+    btn.addEventListener('touchend', stop);
+    btn.addEventListener('touchcancel', stop);
+  }
+
+  holdAction(document.getElementById('vcZoomIn'),  () => { radius = Math.max(5, radius * ZOOM_FACTOR); updateCam(); });
+  holdAction(document.getElementById('vcZoomOut'), () => { radius = Math.min(3000, radius / ZOOM_FACTOR); updateCam(); });
+
+  holdAction(document.getElementById('vcRotL'), () => { theta += STEP_ROTATE; updateCam(); });
+  holdAction(document.getElementById('vcRotR'), () => { theta -= STEP_ROTATE; updateCam(); });
+  holdAction(document.getElementById('vcRotU'), () => { phi = Math.max(0.05, phi - STEP_ROTATE); updateCam(); });
+  holdAction(document.getElementById('vcRotD'), () => { phi = Math.min(Math.PI - 0.05, phi + STEP_ROTATE); updateCam(); });
+
+  holdAction(document.getElementById('vcPanL'), () => { panX += STEP_PAN; updateCam(); });
+  holdAction(document.getElementById('vcPanR'), () => { panX -= STEP_PAN; updateCam(); });
+  holdAction(document.getElementById('vcPanU'), () => { panY += STEP_PAN; updateCam(); });
+  holdAction(document.getElementById('vcPanD'), () => { panY -= STEP_PAN; updateCam(); });
+
+  document.getElementById('vcReset').addEventListener('click', () => {
+    radius = 180; panX = 0; panY = 0; theta = -0.3; phi = 1.1; updateCam();
+  });
+
   // Sidebar: color pickers
   document.getElementById('colorGate').addEventListener('input',       e => mats.gate.color.set(e.target.value));
   document.getElementById('colorGateBorder').addEventListener('input', e => mats.gateBorder.color.set(e.target.value));

@@ -22,7 +22,8 @@
 
 <div class="main">
   <!-- Toolbar -->
-  <div class="toolbar">
+  <button class="toolbar-toggle" id="toolbarToggle" title="Toggle Toolbar">⚙</button>
+  <div class="toolbar" id="toolbar">
     <button class="tb-btn active" id="btnShaded" title="Shaded">◼</button>
     <button class="tb-btn" id="btnWire" title="Wireframe">⬡</button>
     <button class="tb-btn" id="btnXray" title="X-Ray">◈</button>
@@ -45,6 +46,30 @@
       <div class="chip live" id="hudMode">Shaded</div>
       <div class="chip">Gate X: <b id="hudX">0.0</b> m</div>
       <div class="chip">Open: <b id="hudPct">0%</b></div>
+    </div>
+
+    <!-- Viewport controls -->
+    <div class="vp-controls" id="vpControls">
+      <div class="vpc-group">
+        <button class="vpc-btn" id="vcZoomIn" title="Zoom In">+</button>
+        <button class="vpc-btn" id="vcZoomOut" title="Zoom Out">&minus;</button>
+      </div>
+      <div class="vpc-sep"></div>
+      <div class="vpc-group">
+        <button class="vpc-btn" id="vcRotL" title="Rotate Left">&#8634;</button>
+        <button class="vpc-btn" id="vcRotR" title="Rotate Right">&#8635;</button>
+        <button class="vpc-btn" id="vcRotU" title="Rotate Up">&#8593;</button>
+        <button class="vpc-btn" id="vcRotD" title="Rotate Down">&#8595;</button>
+      </div>
+      <div class="vpc-sep"></div>
+      <div class="vpc-group">
+        <button class="vpc-btn" id="vcPanL" title="Pan Left">&#9664;</button>
+        <button class="vpc-btn" id="vcPanR" title="Pan Right">&#9654;</button>
+        <button class="vpc-btn" id="vcPanU" title="Pan Up">&#9650;</button>
+        <button class="vpc-btn" id="vcPanD" title="Pan Down">&#9660;</button>
+      </div>
+      <div class="vpc-sep"></div>
+      <button class="vpc-btn vpc-reset" id="vcReset" title="Reset View">&#8634; Reset</button>
     </div>
 
     <!-- Control panel at bottom -->

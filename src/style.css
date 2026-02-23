@@ -22,7 +22,7 @@ header{
 .stat-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
 .stat-chip span{color:var(--text)}
 
-.main{display:flex;flex:1;overflow:hidden}
+.main{display:flex;flex:1;overflow:hidden;position:relative}
 
 /* TOOLBAR */
 .toolbar{
@@ -113,6 +113,27 @@ canvas#c{display:block;width:100%;height:100%}
 .lbtn:hover{color:var(--text)}
 .lbtn.on{border-color:rgba(79,142,255,0.35);background:rgba(79,142,255,0.12);color:var(--accent)}
 
+/* Viewport controls */
+.vp-controls{
+  position:absolute;bottom:140px;right:14px;
+  display:flex;flex-direction:column;gap:4px;align-items:center;
+  background:rgba(11,11,14,0.85);border:1px solid var(--border);
+  border-radius:10px;padding:6px;backdrop-filter:blur(12px);
+  z-index:10;
+}
+.vpc-group{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:68px}
+.vpc-btn{
+  width:30px;height:30px;border-radius:6px;border:1px solid var(--border);
+  background:var(--surface2);color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:600;font-family:var(--font);transition:all 0.12s;
+  user-select:none;-webkit-user-select:none;
+}
+.vpc-btn:hover{background:rgba(79,142,255,0.15);color:var(--text);border-color:rgba(79,142,255,0.35)}
+.vpc-btn:active{background:rgba(79,142,255,0.3);color:var(--accent)}
+.vpc-reset{width:auto;padding:0 10px;font-size:11px;gap:4px;letter-spacing:0.3px}
+.vpc-sep{width:80%;height:1px;background:var(--border);margin:2px 0}
+
 /* Sidebar */
 .sidebar{
   width:210px;flex-shrink:0;border-left:1px solid var(--border);
@@ -142,3 +163,62 @@ canvas#c{display:block;width:100%;height:100%}
 .range-row label{font-size:11px;color:var(--muted);width:65px}
 .range-row input{flex:1;accent-color:var(--accent)}
 .range-val{font-size:10px;color:var(--text);width:26px;text-align:right}
+
+/* Toolbar toggle button (hidden on desktop) */
+.toolbar-toggle{
+  display:none;position:absolute;top:8px;left:8px;z-index:50;
+  width:34px;height:34px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surface);color:var(--muted);cursor:pointer;
+  font-size:16px;align-items:center;justify-content:center;
+  font-family:var(--font);transition:all 0.15s;
+}
+.toolbar-toggle:hover{background:var(--surface2);color:var(--text)}
+.toolbar-toggle.active{background:rgba(79,142,255,0.15);border-color:rgba(79,142,255,0.35);color:var(--accent)}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  /* Header: wrap content */
+  header{flex-wrap:wrap;gap:8px;padding:8px 12px}
+  .hinfo h1{font-size:12px}
+  .hinfo p{font-size:10px}
+  .hstats{margin-left:0;width:100%;flex-wrap:wrap;gap:4px}
+  .stat-chip{font-size:10px;padding:2px 8px}
+
+  /* Main layout: stack vertically, allow scroll to sidebar */
+  .main{flex-direction:column;overflow-y:auto}
+
+  /* Toolbar: collapsible */
+  .toolbar-toggle{display:flex}
+  .toolbar{
+    position:absolute;top:44px;left:8px;z-index:40;
+    width:auto;height:auto;flex-direction:row;flex-wrap:wrap;
+    border-right:none;border:1px solid var(--border);border-radius:8px;
+    padding:6px;gap:4px;box-shadow:0 4px 16px rgba(0,0,0,0.5);
+    max-width:calc(100vw - 16px);
+  }
+  .toolbar.collapsed{display:none}
+  .tb-sep{width:1px;height:22px;margin:0 2px}
+  .tb-btn[title]:hover::after{display:none}
+
+  /* Viewport: take available space */
+  .viewport{min-height:50vh}
+
+  /* Control panel adjustments */
+  .cpanel{padding:10px 12px}
+  .cp-row{flex-wrap:wrap;gap:8px}
+  .cp-label{width:auto}
+  .cp-row .chip{display:none}
+  .layer-btns{flex-wrap:wrap}
+
+  /* Viewport controls: smaller on mobile */
+  .vp-controls{bottom:120px;right:8px;padding:4px}
+  .vpc-btn{width:28px;height:28px;font-size:12px}
+
+  /* Sidebar: below viewport instead of beside it */
+  .sidebar{
+    width:100%;border-left:none;border-top:1px solid var(--border);
+    overflow-y:visible;
+  }
+  .sb-section{padding:10px 12px}
+  .shade-btns{grid-template-columns:1fr 1fr 1fr}
+}
