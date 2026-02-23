@@ -1,0 +1,17 @@
+{
+  "name": "gate-mover",
+  "version": "1.0.0",
+  "description": "TDP_GATE_260207 Sliding Gate 3D Viewer",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "0.128.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

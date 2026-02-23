@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gate Viewer — TDP_GATE_260207</title>
+</head>
+<body>
+
+<header>
+  <div class="logo">STP</div>
+  <div class="hinfo">
+    <h1>TDP_GATE_260207.STEP</h1>
+    <p>Sliding Gate Assembly · ISO 10303</p>
+  </div>
+  <div class="hstats">
+    <div class="stat-chip">20.4 × 2.9 <span>m</span> · Opening <span>7.2 m</span></div>
+    <div class="stat-chip">Frame <span>+</span> Gate <span>+</span> Mechanisms</div>
+    <div class="stat-chip">Status <span id="statOpen">CLOSED</span></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="tb-btn active" id="btnShaded" title="Shaded">◼</button>
+    <button class="tb-btn" id="btnWire" title="Wireframe">⬡</button>
+    <button class="tb-btn" id="btnXray" title="X-Ray">◈</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btnFitAll" title="Fit All">⊞</button>
+    <button class="tb-btn" id="btnViewTop" title="Top View">▲</button>
+    <button class="tb-btn" id="btnViewFront" title="Front View">▶</button>
+    <button class="tb-btn" id="btnViewIso" title="ISO View">⟁</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn active" id="btnGrid" title="Grid">⊟</button>
+    <button class="tb-btn active" id="btnEdges" title="Edges">△</button>
+    <button class="tb-btn active" id="btnGround" title="Ground">⬜</button>
+  </div>
+
+  <!-- Viewport -->
+  <div class="viewport" id="vp">
+    <canvas id="c"></canvas>
+
+    <div class="hud-tl">
+      <div class="chip live" id="hudMode">Shaded</div>
+      <div class="chip">Gate X: <b id="hudX">0.0</b> m</div>
+      <div class="chip">Open: <b id="hudPct">0%</b></div>
+    </div>
+
+    <!-- Control panel at bottom -->
+    <div class="cpanel">
+      <div class="cp-row">
+        <span class="cp-label accent">⇔ Gate</span>
+        <div class="gate-slider-track" id="gSliderTrack">
+          <div class="gate-slider-fill" id="gSliderFill"></div>
+          <span class="gate-pos-label" style="left:8px">CLOSED</span>
+          <span class="gate-pos-label" style="right:8px">OPEN</span>
+          <div class="gate-slider-thumb" id="gThumb"></div>
+        </div>
+        <button class="play-btn" id="playBtn">▶ Animate</button>
+      </div>
+      <div class="cp-row">
+        <span class="cp-label">Layers</span>
+        <div class="layer-btns">
+          <button class="lbtn on" id="lGate">Gate</button>
+          <button class="lbtn on" id="lFrame">Frame</button>
+          <button class="lbtn on" id="lMech">Drive Units</button>
+          <button class="lbtn" id="lMotor">Motor</button>
+        </div>
+        <span style="flex:1"></span>
+        <span class="chip">Drag <b>rotate</b> · Scroll <b>zoom</b> · Right-drag <b>pan</b></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">Model Info</div>
+      <div class="prop-row"><span class="k">File</span><span class="v">TDP_GATE_260207</span></div>
+      <div class="prop-row"><span class="k">Format</span><span class="v">STEP / AP214</span></div>
+      <div class="prop-row"><span class="k">Total Width</span><span class="v">20.4 m</span></div>
+      <div class="prop-row"><span class="k">Opening</span><span class="v">7.2 m</span></div>
+      <div class="prop-row"><span class="k">Height</span><span class="v">2.9 m</span></div>
+      <div class="prop-row"><span class="k">Shells</span><span class="v">114</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Gate State</div>
+      <div class="prop-row"><span class="k">Position X</span><span class="v" id="sbX">0.00 m</span></div>
+      <div class="prop-row"><span class="k">Open %</span><span class="v" id="sbPct">0%</span></div>
+      <div class="prop-row"><span class="k">Status</span><span class="v" id="sbStatus">CLOSED</span></div>
+      <div class="prop-row"><span class="k">Travel</span><span class="v">7.2 m</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Display</div>
+      <div class="shade-btns">
+        <button class="sbtn active" id="sb1">Shaded</button>
+        <button class="sbtn" id="sb2">Wire</button>
+        <button class="sbtn" id="sb3">X-Ray</button>
+      </div>
+      <div class="color-row" style="margin-top:8px">
+        <label>Grid</label>
+        <button class="sbtn active" id="sbGrid" style="width:auto;padding:4px 12px;letter-spacing:normal;text-transform:none;font-size:11px">Visible</button>
+      </div>
+      <div class="color-row">
+        <label>Gate Slats</label>
+        <input type="color" id="colorGate">
+      </div>
+      <div class="color-row">
+        <label>Gate Border</label>
+        <input type="color" id="colorGateBorder">
+      </div>
+      <div class="color-row">
+        <label>Frame Color</label>
+        <input type="color" id="colorFrame">
+      </div>
+      <div class="color-row">
+        <label>Mechanism</label>
+        <input type="color" id="colorMech">
+      </div>
+      <div class="color-row">
+        <label>Background</label>
+        <input type="color" id="colorBg">
+      </div>
+      <div class="range-row">
+        <label>Metalness</label>
+        <input type="range" id="rangeMetalness" min="0" max="100" value="40">
+        <span class="range-val" id="valMetalness">40</span>
+      </div>
+      <div class="range-row">
+        <label>Roughness</label>
+        <input type="range" id="rangeRoughness" min="0" max="100" value="35">
+        <span class="range-val" id="valRoughness">35</span>
+      </div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">Animation</div>
+      <div class="range-row">
+        <label>Speed</label>
+        <input type="range" id="rangeSpeed" min="1" max="20" value="8">
+        <span class="range-val" id="valSpeed">8</span>
+      </div>
+      <div class="color-row" style="margin-top:8px">
+        <label>Mode</label>
+        <select id="selectAnimMode" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:11px;padding:3px 6px;border-radius:4px">
+          <option value="loop">Loop Open/Close</option>
+          <option value="open">Open Only</option>
+          <option value="close">Close Only</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
