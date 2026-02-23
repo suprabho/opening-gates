@@ -36,6 +36,8 @@
     <button class="tb-btn active" id="btnGrid" title="Grid">⊟</button>
     <button class="tb-btn active" id="btnEdges" title="Edges">△</button>
     <button class="tb-btn active" id="btnGround" title="Ground">⬜</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" id="btnPick" title="Inspect">⊙</button>
   </div>
 
   <!-- Viewport -->
@@ -46,6 +48,27 @@
       <div class="chip live" id="hudMode">Shaded</div>
       <div class="chip">Gate X: <b id="hudX">0.0</b> m</div>
       <div class="chip">Open: <b id="hudPct">0%</b></div>
+    </div>
+
+    <!-- Inspect panel -->
+    <div class="pick-info" id="pickInfo">
+      <div class="pick-title">Inspect <button class="pick-close" id="pickClose">&times;</button></div>
+      <div class="prop-row"><span class="k">Layer</span><span class="v" id="pickLayer">--</span></div>
+      <div class="prop-row"><span class="k">Face #</span><span class="v" id="pickFace">--</span></div>
+      <div class="prop-row"><span class="k">X (mm)</span><span class="v" id="pickX">--</span></div>
+      <div class="prop-row"><span class="k">Y (mm)</span><span class="v" id="pickY">--</span></div>
+      <div class="prop-row"><span class="k">Z (mm)</span><span class="v" id="pickZ">--</span></div>
+      <div class="pick-reassign">
+        <label>Move to</label>
+        <select id="pickReassign">
+          <option value="">-- select --</option>
+          <option value="slats">Slats</option>
+          <option value="gate">Gate</option>
+          <option value="frame">Frame</option>
+          <option value="mech">Drive Units</option>
+          <option value="motor">Motor</option>
+        </select>
+      </div>
     </div>
 
     <!-- Viewport controls -->
@@ -87,6 +110,7 @@
       <div class="cp-row">
         <span class="cp-label">Layers</span>
         <div class="layer-btns">
+          <button class="lbtn on" id="lSlats">Slats</button>
           <button class="lbtn on" id="lGate">Gate</button>
           <button class="lbtn on" id="lFrame">Frame</button>
           <button class="lbtn on" id="lMech">Drive Units</button>

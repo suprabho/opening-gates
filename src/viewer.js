@@ -85,11 +85,12 @@ export function initViewer(MODEL) {
   const edgeMat = new THREE.LineBasicMaterial({ color: COLORS.edges, transparent: true, opacity: 0.35 });
 
   // ======= GROUPS =======
-  const gateGroup  = new THREE.Group(); // MOBILE
+  const slatsGroup = new THREE.Group(); // MOBILE — yellow slat panels
+  const gateGroup  = new THREE.Group(); // MOBILE — border frame around slats
   const frameGroup = new THREE.Group(); // FIXED
   const mechGroup  = new THREE.Group(); // FIXED (left + right mechanism)
   const motorGroup = new THREE.Group(); // MOBILE (on gate)
-  scene.add(gateGroup, frameGroup, mechGroup, motorGroup);
+  scene.add(slatsGroup, gateGroup, frameGroup, mechGroup, motorGroup);
 
   // ======= GEOMETRY BUILDER =======
   function addMeshToGroup(group, meshData, mat) {
@@ -108,14 +109,85 @@ export function initViewer(MODEL) {
     group.add(lines);
   }
 
-  addMeshToGroup(gateGroup,  MODEL.frame_slats,  mats.gate);       // repeating slat panels
-  addMeshToGroup(gateGroup,  MODEL.frame_border, mats.gateBorder); // thick outer border
+  // Helper: split a mesh's triangles into two groups and add each to its own scene group
+  function splitMeshByColor(meshData, classifyFn) {
+    const pos = new Float32Array(meshData.p);
+    const nrm = new Float32Array(meshData.n);
+    const indices = meshData.i;
+    const slatIdx = [], frameIdx = [];
+    for (let f = 0; f < indices.length; f += 3) {
+      const i0 = indices[f], i1 = indices[f + 1], i2 = indices[f + 2];
+      if (classifyFn(pos, i0, i1, i2)) {
+        frameIdx.push(i0, i1, i2);   // grey → gateGroup (border frame)
+      } else {
+        slatIdx.push(i0, i1, i2);    // yellow → slatsGroup
+      }
+    }
+    // Yellow slat faces → slatsGroup
+    if (slatIdx.length > 0) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('normal',   new THREE.BufferAttribute(nrm, 3));
+      geo.setIndex(slatIdx);
+      const mesh = new THREE.Mesh(geo, mats.gate);
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      slatsGroup.add(mesh);
+      slatsGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
+    }
+    // Grey border faces → gateGroup
+    if (frameIdx.length > 0) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+      geo.setAttribute('normal',   new THREE.BufferAttribute(new Float32Array(nrm), 3));
+      geo.setIndex(frameIdx);
+      const mesh = new THREE.Mesh(geo, mats.gateBorder);
+      mesh.castShadow = true; mesh.receiveShadow = true;
+      gateGroup.add(mesh);
+      gateGroup.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
+    }
+  }
+
+  // Frame slats: left + top portions are border (grey), rest are slats (yellow)
+  {
+    const tempGeo = new THREE.BufferGeometry();
+    const pos = new Float32Array(MODEL.frame_slats.p);
+    tempGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    tempGeo.computeBoundingBox();
+    const bb = tempGeo.boundingBox;
+    const xLeft = bb.min.x + 300;
+    const yTop  = bb.max.y - 200;
+    splitMeshByColor(MODEL.frame_slats, (p, i0, i1, i2) => {
+      const x0 = p[i0*3], x1 = p[i1*3], x2 = p[i2*3];
+      const y0 = p[i0*3+1], y1 = p[i1*3+1], y2 = p[i2*3+1];
+      const isLeft = x0 <= xLeft && x1 <= xLeft && x2 <= xLeft;
+      const isTop  = y0 >= yTop  && y1 >= yTop  && y2 >= yTop;
+      return isLeft || isTop;
+    });
+  }
+  // Frame border: right portion + top portion are slats (yellow), rest is border (grey)
+  {
+    const tempGeo = new THREE.BufferGeometry();
+    const pos = new Float32Array(MODEL.frame_border.p);
+    tempGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    tempGeo.computeBoundingBox();
+    const bb = tempGeo.boundingBox;
+    const xRight = bb.max.x - 400;
+    const yTop   = bb.max.y - 200;
+    splitMeshByColor(MODEL.frame_border, (p, i0, i1, i2) => {
+      const x0 = p[i0*3], x1 = p[i1*3], x2 = p[i2*3];
+      const y0 = p[i0*3+1], y1 = p[i1*3+1], y2 = p[i2*3+1];
+      const isRight = x0 >= xRight && x1 >= xRight && x2 >= xRight;
+      const isTop   = y0 >= yTop   && y1 >= yTop   && y2 >= yTop;
+      // returns true → grey/gateGroup, so negate for right + top portions
+      return !(isRight || isTop);
+    });
+  }
   addMeshToGroup(frameGroup, MODEL.gate,         mats.frame);      // diagonal structure = fixed frame
   addMeshToGroup(mechGroup,  MODEL.left_mech,  mats.mech);
   addMeshToGroup(mechGroup,  MODEL.right_mech, mats.mech);
   addMeshToGroup(motorGroup, MODEL.motor,      mats.motor);
 
-  [gateGroup, frameGroup, mechGroup, motorGroup].forEach(g => {
+  [slatsGroup, gateGroup, frameGroup, mechGroup, motorGroup].forEach(g => {
     g.scale.setScalar(SCALE);
     g.position.set(OFF.x * SCALE, OFF.y * SCALE, OFF.z * SCALE);
   });
@@ -152,6 +224,7 @@ export function initViewer(MODEL) {
     t = Math.max(0, Math.min(1, t));
     gateOffset = t;
     const xShift = -t * GATE_TRAVEL;
+    slatsGroup.position.set(OFF.x * SCALE + xShift, OFF.y * SCALE, OFF.z * SCALE);
     gateGroup.position.set(OFF.x * SCALE + xShift, OFF.y * SCALE, OFF.z * SCALE);
     motorGroup.position.set(OFF.x * SCALE + xShift, OFF.y * SCALE, OFF.z * SCALE);
 
@@ -271,12 +344,157 @@ export function initViewer(MODEL) {
   });
 
   // Layer toggles
-  const layerMap = { lGate: gateGroup, lFrame: frameGroup, lMech: mechGroup, lMotor: motorGroup };
+  const layerMap = { lSlats: slatsGroup, lGate: gateGroup, lFrame: frameGroup, lMech: mechGroup, lMotor: motorGroup };
   Object.entries(layerMap).forEach(([id, group]) => {
     document.getElementById(id).addEventListener('click', function () {
       this.classList.toggle('on');
       group.visible = this.classList.contains('on');
     });
+  });
+
+  // ======= INSPECT / PICK MODE =======
+  let pickMode = false;
+  const raycaster = new THREE.Raycaster();
+  const pickMouse = new THREE.Vector2();
+  let pickHighlight = null;
+  let pickedMesh = null;
+  const pickHighlightMat = new THREE.MeshBasicMaterial({
+    color: 0xff3333, side: THREE.DoubleSide,
+    transparent: true, opacity: 0.65, depthTest: false
+  });
+
+  const groupNameMap = new Map([
+    [slatsGroup, 'Slats'], [gateGroup, 'Gate'], [frameGroup, 'Frame'],
+    [mechGroup, 'Drive Units'], [motorGroup, 'Motor']
+  ]);
+  const groupByKey = { slats: slatsGroup, gate: gateGroup, frame: frameGroup, mech: mechGroup, motor: motorGroup };
+
+  document.getElementById('btnPick').addEventListener('click', function () {
+    pickMode = !pickMode;
+    this.classList.toggle('active', pickMode);
+    canvas.style.cursor = pickMode ? 'crosshair' : '';
+    if (!pickMode) {
+      document.getElementById('pickInfo').style.display = 'none';
+      if (pickHighlight) { scene.remove(pickHighlight); pickHighlight = null; }
+      pickedMesh = null;
+    }
+  });
+
+  // Track mousedown position to distinguish click from drag
+  let pickDownX = 0, pickDownY = 0;
+  canvas.addEventListener('mousedown', e => { pickDownX = e.clientX; pickDownY = e.clientY; }, true);
+
+  canvas.addEventListener('click', e => {
+    if (!pickMode) return;
+    if (Math.abs(e.clientX - pickDownX) > 4 || Math.abs(e.clientY - pickDownY) > 4) return;
+
+    const rect = canvas.getBoundingClientRect();
+    pickMouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pickMouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(pickMouse, camera);
+
+    const allMeshes = [];
+    [slatsGroup, gateGroup, frameGroup, mechGroup, motorGroup].forEach(g => {
+      if (!g.visible) return;
+      g.traverse(o => { if (o.isMesh) allMeshes.push(o); });
+    });
+
+    const hits = raycaster.intersectObjects(allMeshes);
+
+    // Clear previous highlight
+    if (pickHighlight) { scene.remove(pickHighlight); pickHighlight = null; }
+
+    if (hits.length === 0) {
+      document.getElementById('pickInfo').style.display = 'none';
+      pickedMesh = null;
+      return;
+    }
+
+    const hit = hits[0];
+    const mesh = hit.object;
+    const faceIdx = hit.faceIndex;
+    pickedMesh = mesh;
+
+    // Determine layer
+    let layerName = 'Unknown';
+    for (const [group, name] of groupNameMap) {
+      if (mesh.parent === group) { layerName = name; break; }
+    }
+
+    // Get face vertex positions (in original mm coordinates from geometry)
+    const geo = mesh.geometry;
+    const posAttr = geo.getAttribute('position');
+    const index = geo.getIndex();
+    const i0 = index.getX(faceIdx * 3);
+    const i1 = index.getX(faceIdx * 3 + 1);
+    const i2 = index.getX(faceIdx * 3 + 2);
+    const cx = (posAttr.getX(i0) + posAttr.getX(i1) + posAttr.getX(i2)) / 3;
+    const cy = (posAttr.getY(i0) + posAttr.getY(i1) + posAttr.getY(i2)) / 3;
+    const cz = (posAttr.getZ(i0) + posAttr.getZ(i1) + posAttr.getZ(i2)) / 3;
+
+    // Show info panel
+    const panel = document.getElementById('pickInfo');
+    panel.style.display = 'block';
+    document.getElementById('pickLayer').textContent = layerName;
+    document.getElementById('pickFace').textContent = faceIdx;
+    document.getElementById('pickX').textContent = cx.toFixed(1);
+    document.getElementById('pickY').textContent = cy.toFixed(1);
+    document.getElementById('pickZ').textContent = cz.toFixed(1);
+    document.getElementById('pickReassign').value = '';
+
+    // Highlight the picked face
+    const hlGeo = new THREE.BufferGeometry();
+    const hlPos = new Float32Array([
+      posAttr.getX(i0), posAttr.getY(i0), posAttr.getZ(i0),
+      posAttr.getX(i1), posAttr.getY(i1), posAttr.getZ(i1),
+      posAttr.getX(i2), posAttr.getY(i2), posAttr.getZ(i2),
+    ]);
+    hlGeo.setAttribute('position', new THREE.BufferAttribute(hlPos, 3));
+    hlGeo.setIndex([0, 1, 2]);
+    pickHighlight = new THREE.Mesh(hlGeo, pickHighlightMat);
+    pickHighlight.scale.setScalar(SCALE);
+    pickHighlight.position.copy(mesh.parent.position);
+    pickHighlight.renderOrder = 999;
+    scene.add(pickHighlight);
+  });
+
+  // Close button
+  document.getElementById('pickClose').addEventListener('click', () => {
+    document.getElementById('pickInfo').style.display = 'none';
+    if (pickHighlight) { scene.remove(pickHighlight); pickHighlight = null; }
+    pickedMesh = null;
+  });
+
+  // Reassign: move entire mesh to a different group
+  document.getElementById('pickReassign').addEventListener('change', function () {
+    if (!this.value || !pickedMesh) return;
+    const targetGroup = groupByKey[this.value];
+    if (!targetGroup || pickedMesh.parent === targetGroup) return;
+    const mesh = pickedMesh;
+    const oldGroup = mesh.parent;
+    // Move mesh and its edge lines (next sibling) to new group
+    const siblings = [...oldGroup.children];
+    const idx = siblings.indexOf(mesh);
+    oldGroup.remove(mesh);
+    targetGroup.add(mesh);
+    // Move associated edge lines if they follow the mesh
+    if (idx >= 0 && idx < siblings.length - 1 && siblings[idx + 1].isLineSegments) {
+      const edges = siblings[idx + 1];
+      oldGroup.remove(edges);
+      targetGroup.add(edges);
+    }
+    // Update material to match target group
+    if (targetGroup === slatsGroup) mesh.material = mats.gate;
+    else if (targetGroup === gateGroup) mesh.material = mats.gateBorder;
+    else if (targetGroup === frameGroup) mesh.material = mats.frame;
+    else if (targetGroup === mechGroup) mesh.material = mats.mech;
+    else if (targetGroup === motorGroup) mesh.material = mats.motor;
+    // Update display
+    let layerName = 'Unknown';
+    for (const [g, n] of groupNameMap) { if (targetGroup === g) { layerName = n; break; } }
+    document.getElementById('pickLayer').textContent = layerName;
+    this.value = '';
   });
 
   // Gate slider: drag

@@ -171,6 +171,26 @@ canvas#c{display:block;width:100%;height:100%}
 .range-row input{flex:1;accent-color:var(--accent)}
 .range-val{font-size:10px;color:var(--text);width:26px;text-align:right}
 
+/* Inspect / Pick panel */
+.pick-info{
+  display:none;position:absolute;top:14px;right:14px;z-index:20;
+  background:rgba(20,20,24,0.92);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;min-width:175px;
+  backdrop-filter:blur(14px);font-size:11px;
+}
+.pick-title{
+  display:flex;justify-content:space-between;align-items:center;
+  font-weight:600;font-size:12px;margin-bottom:6px;color:var(--accent);
+}
+.pick-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 2px}
+.pick-close:hover{color:var(--text)}
+.pick-reassign{display:flex;align-items:center;gap:8px;margin-top:8px;padding-top:6px;border-top:1px solid var(--border)}
+.pick-reassign label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.pick-reassign select{
+  flex:1;background:var(--surface2);border:1px solid var(--border);color:var(--text);
+  font-size:11px;padding:3px 6px;border-radius:4px;font-family:var(--font);
+}
+
 /* Toolbar toggle button (hidden on desktop) */
 .toolbar-toggle{
   display:none;position:absolute;top:8px;left:8px;z-index:50;
