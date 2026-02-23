@@ -101,22 +101,6 @@
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="sb-section">
-      <div class="sb-label">Model Info</div>
-      <div class="prop-row"><span class="k">File</span><span class="v">TDP_GATE_260207</span></div>
-      <div class="prop-row"><span class="k">Format</span><span class="v">STEP / AP214</span></div>
-      <div class="prop-row"><span class="k">Total Width</span><span class="v">20.4 m</span></div>
-      <div class="prop-row"><span class="k">Opening</span><span class="v">7.2 m</span></div>
-      <div class="prop-row"><span class="k">Height</span><span class="v">2.9 m</span></div>
-      <div class="prop-row"><span class="k">Shells</span><span class="v">114</span></div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-label">Gate State</div>
-      <div class="prop-row"><span class="k">Position X</span><span class="v" id="sbX">0.00 m</span></div>
-      <div class="prop-row"><span class="k">Open %</span><span class="v" id="sbPct">0%</span></div>
-      <div class="prop-row"><span class="k">Status</span><span class="v" id="sbStatus">CLOSED</span></div>
-      <div class="prop-row"><span class="k">Travel</span><span class="v">7.2 m</span></div>
-    </div>
-    <div class="sb-section">
       <div class="sb-label">Display</div>
       <div class="shade-btns">
         <button class="sbtn active" id="sb1">Shaded</button>
@@ -172,6 +156,26 @@
           <option value="open">Open Only</option>
           <option value="close">Close Only</option>
         </select>
+      </div>
+    </div>
+    <div class="sb-section sb-collapsible">
+      <div class="sb-label sb-toggle" data-target="secModelInfo">Model Info <span class="sb-arrow">▸</span></div>
+      <div class="sb-body collapsed" id="secModelInfo">
+        <div class="prop-row"><span class="k">File</span><span class="v">TDP_GATE_260207</span></div>
+        <div class="prop-row"><span class="k">Format</span><span class="v">STEP / AP214</span></div>
+        <div class="prop-row"><span class="k">Total Width</span><span class="v">20.4 m</span></div>
+        <div class="prop-row"><span class="k">Opening</span><span class="v">7.2 m</span></div>
+        <div class="prop-row"><span class="k">Height</span><span class="v">2.9 m</span></div>
+        <div class="prop-row"><span class="k">Shells</span><span class="v">114</span></div>
+      </div>
+    </div>
+    <div class="sb-section sb-collapsible">
+      <div class="sb-label sb-toggle" data-target="secGateState">Gate State <span class="sb-arrow">▸</span></div>
+      <div class="sb-body collapsed" id="secGateState">
+        <div class="prop-row"><span class="k">Position X</span><span class="v" id="sbX">0.00 m</span></div>
+        <div class="prop-row"><span class="k">Open %</span><span class="v" id="sbPct">0%</span></div>
+        <div class="prop-row"><span class="k">Status</span><span class="v" id="sbStatus">CLOSED</span></div>
+        <div class="prop-row"><span class="k">Travel</span><span class="v">7.2 m</span></div>
       </div>
     </div>
   </div>

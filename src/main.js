@@ -22,6 +22,15 @@ if (toolbarToggle && toolbar) {
   });
 }
 
+// Collapsible sidebar sections
+document.querySelectorAll('.sb-toggle').forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    const body = document.getElementById(toggle.dataset.target);
+    toggle.classList.toggle('open');
+    body.classList.toggle('collapsed');
+  });
+});
+
 fetch('/model.json')
   .then(res => {
     if (!res.ok) throw new Error(`Failed to load model.json: ${res.status}`);
