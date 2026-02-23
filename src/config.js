@@ -4,12 +4,12 @@
 // ============================================================
 
 export const COLORS = {
-  gateSlats:  '#b8a832',  // Gate — repeating slat panels
-  gateBorder: '#5a5a2e',  // Gate — thick outer border frame
-  frame:      '#8899bb',  // Fixed structural frame
-  mech:       '#cc8833',  // Drive unit mechanisms
-  motor:      '#ee4444',  // Motor box (hidden by default)
-  background: '#0b0b0e',  // Scene background
+  gateSlats:  '#ffe100',  // Gate — repeating slat panels
+  gateBorder: '#374151',  // Gate — thick outer border frame
+  frame:      '#374151',  // Fixed structural frame
+  mech:       '#374151',  // Drive unit mechanisms
+  motor:      '#374151',  // Motor box (hidden by default)
+  background: '#ffffff',  // Scene background
   edges:      '#224466',  // Edge overlay lines
 };
 
