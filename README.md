@@ -1,4 +1,4 @@
-# STEP Viewer — TDP_GATE_260207
+# STEP Viewer — Animated Gates
 
 Interactive browser-based viewer for the gate assembly model, built from a `.STEP` file with no external viewer dependency.
 
