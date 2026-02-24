@@ -52,7 +52,8 @@ export function initViewer(MODEL) {
   const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 5000);
 
   // ======= LIGHTING =======
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambientLight);
 
   const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
   keyLight.position.set(50, 120, 80);
@@ -616,6 +617,36 @@ export function initViewer(MODEL) {
   document.getElementById('rangeRoughness').addEventListener('input', function () {
     Object.values(mats).forEach(m => m.roughness = this.value / 100);
     document.getElementById('valRoughness').textContent = this.value;
+  });
+
+  // Sidebar: lighting controls
+  const LIGHT_DIST = 150; // distance of key light from origin
+  function updateKeyLightPos() {
+    const az = parseFloat(document.getElementById('rangeLightAzimuth').value) * Math.PI / 180;
+    const el = parseFloat(document.getElementById('rangeLightElevation').value) * Math.PI / 180;
+    keyLight.position.set(
+      LIGHT_DIST * Math.cos(el) * Math.sin(az),
+      LIGHT_DIST * Math.sin(el),
+      LIGHT_DIST * Math.cos(el) * Math.cos(az)
+    );
+  }
+  document.getElementById('rangeLightIntensity').addEventListener('input', function () {
+    const v = this.value / 10;
+    keyLight.intensity = v;
+    document.getElementById('valLightIntensity').textContent = v.toFixed(1);
+  });
+  document.getElementById('rangeLightAzimuth').addEventListener('input', function () {
+    document.getElementById('valLightAzimuth').textContent = this.value + '°';
+    updateKeyLightPos();
+  });
+  document.getElementById('rangeLightElevation').addEventListener('input', function () {
+    document.getElementById('valLightElevation').textContent = this.value + '°';
+    updateKeyLightPos();
+  });
+  document.getElementById('rangeLightAmbient').addEventListener('input', function () {
+    const v = this.value / 10;
+    ambientLight.intensity = v;
+    document.getElementById('valLightAmbient').textContent = v.toFixed(1);
   });
 
   // Sidebar: animation speed & mode
